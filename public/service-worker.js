@@ -1,0 +1,8 @@
+// Это базовый сервис-воркер, который будет скопирован в dist
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(clients.claim());
+}); 
