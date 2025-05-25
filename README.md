@@ -73,27 +73,32 @@ iOS приложение
 
 ```mermaid
 graph TD
-    subgraph Пользователь
-        U[Пользователь]
-    end
+    %% Пользовательская ветка
+    U[Пользователь]:::user --> B[Telegram Бот]:::telegram
+    B --> G[Обработчик Telegram-бота]:::botlogic
+    G -- Ответ напрямую --> B
+    G -- Запрос за данными --> D[API Сервер]:::api
+    B -- Прямой запрос --> D
 
-    subgraph Администратор
-        A1[Администратор]
-    end
-
-    U --> B[Telegram Бот]
-    A1 --> A[Веб-интерфейс]
-    A1 --> C[iOS Приложение]
-
-    B --> G[Обработчик Telegram-бота]
-    G --> D[API Сервер]
-    B --> D
-
+    %% Администраторская ветка
+    A1[Администратор]:::admin --> A[Веб-интерфейс]:::frontend
+    A1 --> C[iOS Приложение]:::frontend
     A --> D
     C --> D
 
-    D --> E[(PostgreSQL)]
-    D --> F[Файловое хранилище]
+    %% API взаимодействия
+    D --> E[(PostgreSQL)]:::storage
+    D --> F[Файловое хранилище]:::storage
+
+    %% Стили
+    classDef user fill:#cce5ff,stroke:#3399ff,stroke-width:2px;
+    classDef telegram fill:#e6f2ff,stroke:#3399ff;
+    classDef botlogic fill:#b3d1ff,stroke:#0066cc,stroke-width:2px;
+    classDef admin fill:#d4edda,stroke:#28a745,stroke-width:2px;
+    classDef frontend fill:#e2f7e1,stroke:#28a745;
+    classDef api fill:#ffe5b4,stroke:#ff9900,stroke-width:2px;
+    classDef storage fill:#fff3cd,stroke:#ffcc00;
+
 ```
 
 ### Взаимодействие компонентов
