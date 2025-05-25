@@ -901,41 +901,84 @@ export default component$(() => {
                 </div>
               )}
               
-              {messages.value.map(message => (
-                <div key={message.id} style="background-color: var(--color-background-secondary); padding: 16px; border-radius: var(--border-radius); border: 1px solid var(--color-border); margin-bottom: 12px;">
-                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                    <div class="avatar">{message.sender_type === 'user' ? 'П' : 'С'}{message.sender_id.toString()[0]}</div>
-                    <div style="min-width: 0;">
-                      <div style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                        {message.sender_type === 'user' ? `Пользователь #${message.sender_id}` : `Поддержка #${message.sender_id}`}
+              {messages.value.map(message => {
+                const isSupport = message.sender_type === 'support';
+                return (
+                  <div key={message.id} style={{
+                    display: 'flex',
+                    flexDirection: isSupport ? 'row-reverse' : 'row',
+                    marginBottom: '12px',
+                    gap: '12px'
+                  }}>
+                    <div class="avatar" style={{
+                      alignSelf: 'flex-end',
+                      width: '32px',
+                      height: '32px',
+                      flexShrink: 0
+                    }}>
+                      {message.sender_type === 'user' ? 'П' : 'С'}{message.sender_id.toString()[0]}
+                    </div>
+                    
+                    <div style={{
+                      maxWidth: '70%',
+                      minWidth: '200px'
+                    }}>
+                      <div style={{
+                        backgroundColor: isSupport ? 'var(--color-primary)' : 'var(--color-background-secondary)',
+                        color: isSupport ? 'white' : 'var(--color-text)',
+                        padding: '12px 16px',
+                        borderRadius: '12px',
+                        borderBottomLeftRadius: isSupport ? '12px' : '4px',
+                        borderBottomRightRadius: isSupport ? '4px' : '12px',
+                        border: isSupport ? 'none' : '1px solid var(--color-border)',
+                        marginBottom: '4px'
+                      }}>
+                        <div style={{
+                          fontSize: '15px',
+                          whiteSpace: 'pre-wrap'
+                        }} dangerouslySetInnerHTML={formatMessageText(message.message)}></div>
+                        
+                        {/* Показываем прикрепленные фотографии */}
+                        {photos.value
+                          .filter(photo => photo.message_id === message.id)
+                          .map(photo => (
+                            <div style={{ marginTop: '8px' }}>
+                              <PhotoComponent
+                                key={photo.id}
+                                photoUrl={getImageUrl(photo.file_path || photo.file_id)}
+                                photoId={photo.id}
+                              />
+                            </div>
+                          ))
+                        }
                       </div>
-                      <div style="font-size: 13px; color: var(--color-text-secondary);">
-                        {new Date(message.created_at).toLocaleString('ru-RU', {
-                          day: 'numeric',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                      
+                      <div style={{
+                        fontSize: '12px',
+                        color: 'var(--color-text-secondary)',
+                        textAlign: isSupport ? 'right' : 'left',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        justifyContent: isSupport ? 'flex-end' : 'flex-start'
+                      }}>
+                        <span>
+                          {message.sender_type === 'user' ? `Пользователь #${message.sender_id}` : `Поддержка #${message.sender_id}`}
+                        </span>
+                        <span>•</span>
+                        <span>
+                          {new Date(message.created_at).toLocaleString('ru-RU', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
                       </div>
                     </div>
                   </div>
-                  <div style="font-size: 15px;">
-                    <div dangerouslySetInnerHTML={formatMessageText(message.message)}></div>
-                  </div>
-                  
-                  {/* Показываем прикрепленные фотографии */}
-                  {photos.value
-                    .filter(photo => photo.message_id === message.id)
-                    .map(photo => (
-                      <PhotoComponent
-                        key={photo.id}
-                        photoUrl={getImageUrl(photo.file_path || photo.file_id)}
-                        photoId={photo.id}
-                      />
-                    ))
-                  }
-                </div>
-              ))}
+                );
+              })}
               
               {messages.value.length === 0 && (
                 <div style="background-color: var(--color-background-secondary); padding: 16px; border-radius: var(--border-radius); border: 1px solid var(--color-border); text-align: center; color: var(--color-text-secondary);">
